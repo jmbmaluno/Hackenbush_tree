@@ -1,5 +1,7 @@
 from fractions import Fraction
-
+from turtle import Turtle
+import tkinter as tk
+from tkinter import font
 
 #retirar todo o caminho que tem depois da posição retirada junto com seus filhos
 def retirar_pos(string, i):
@@ -57,7 +59,7 @@ def calcular_caminho(caminho):
     caminho = caminho.replace('(', '')
 
     valor = 0
-    cor_anterior = '';
+    cor_anterior = ''
     base = 2
 
     for cor in (caminho):
@@ -187,9 +189,132 @@ def calcular_arvore(arvore):
         return min(red) - 1
 
 
+    if abs(min(red) - max(blue)) > 1:
+        if abs(min(red)) < abs(max(blue)):
+            return min(red) + 1
+        else:
+            return int(max(blue)) + 1
 
-arvore = "B (B (B) (B)) (B)"
+    else:
+        return (max(blue)+min(red))/2
 
 
-print(Fraction(calcular_arvore(arvore)))
 
+######################
+# DESENHAR A ARVORE  #
+######################
+
+#Ajeitar o angulo da turtle
+def desenhar(arvore):
+
+    arvore = arvore.replace(' ', '')
+
+    #Configurando turtle
+    t = Turtle()
+    t.screen.screensize(2000,2000)
+    t.hideturtle()
+
+    t.screen.title("Plotando Hackenbush")
+
+    lapis_size = 5
+    t.pensize(lapis_size)
+
+    t.penup()
+    t.goto(0,-250)
+    t.pendown()
+
+    t.color('brown')
+    t.forward(200)
+    t.backward(400)
+
+    t.penup()
+    t.forward(200)
+    t.pendown()
+
+    t.left(90)
+
+    pilha= []
+
+    passo = 30
+    for i in arvore:
+        
+        if i == 'B':
+            t.dot(lapis_size*2)
+
+            t.penup()
+            t.forward(lapis_size)
+            t.pendown()
+
+            t.color('blue')
+            t.forward(passo)
+            
+
+        elif i == 'R':
+            t.dot(lapis_size*2)
+
+            t.penup()
+            t.forward(lapis_size)
+            t.pendown()
+
+            t.color('red')
+            t.forward(passo)
+            
+
+        elif i == '(':
+            pilha.append((t.pos(), t.heading()))
+            t.left(30)
+
+        elif i == ')':
+            pos,degree = pilha.pop()
+            t.setheading(degree)
+            t.right(60)
+            t.penup()
+            t.goto(pos)
+            t.pendown()
+
+    
+    #Escrevendo resultado
+    t.penup()
+    t.color('black')
+    t.goto(-110,-300)
+    t.pendown()
+    texto = "Valor da árvore: " + str(Fraction(calcular_arvore(arvore))) + "\n" + "Árvore: " + arvore
+
+    t.write(texto,font = ("Arial", 14, 'normal'), align='center')
+
+    t.screen.mainloop()
+
+
+arvore = "B B R (R) (B) "
+
+
+def preencher_string():
+    texto_inserido = campo_texto.get()
+    texto_preenchido.set(texto_inserido)
+    janela.destroy()
+
+# Criar a janela
+janela = tk.Tk()
+janela.title("Preencher String")
+janela.geometry("400x150")
+
+
+# Variável para armazenar o texto inserido
+texto_preenchido = tk.StringVar()
+
+# Criar um rótulo
+rotulo = tk.Label(janela, text="Digite sua Hackenbush Tree:", font=8)
+rotulo.pack(pady=10)
+
+# Criar um campo de entrada
+campo_texto = tk.Entry(janela, font=3)
+campo_texto.pack(pady=5)
+
+# Criar um botão
+botao = tk.Button(janela, text="Confirmar", command=preencher_string)
+botao.pack(pady=10)
+
+# Iniciar a interface gráfica
+janela.mainloop()
+
+desenhar(texto_preenchido.get().upper())
